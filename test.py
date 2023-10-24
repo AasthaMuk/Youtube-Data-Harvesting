@@ -2,7 +2,7 @@
 # # Importing Libraries
 
 # %%
-! pip install googleapiclient
+!pip3 install google-api-python-client
 
 # %%
 import googleapiclient.discovery
