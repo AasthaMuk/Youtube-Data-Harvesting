@@ -1,8 +1,6 @@
 import streamlit as st
 import googleapiclient.discovery
 import googleapiclient.errors
-import pymongo
-import psycopg2
 import pandas as pd
 
 header = st.container()
