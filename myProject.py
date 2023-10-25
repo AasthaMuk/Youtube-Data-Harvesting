@@ -1,7 +1,3 @@
-# %% [markdown]
-# # Importing Libraries
-
-# %%
 import googleapiclient.discovery
 import googleapiclient.errors
 import pymongo
@@ -9,20 +5,6 @@ import psycopg2
 import streamlit as st
 import pandas as pd
 
-# %%
-st.write(1234)
-st.write(pd.DataFrame({
-    'first column': [1, 2, 3, 4],
-    'second column': [10, 20, 30, 40],
-}))
-
-# %% [markdown]
-# # Different APIs to do Data Scraping
-
-# %% [markdown]
-# ### Using Youtube API by Google using API Key
-
-# %%
 def access_youtube_api():
     api_service_name = "youtube"
     api_version = "v3"
@@ -31,53 +13,13 @@ def access_youtube_api():
         api_service_name, api_version,developerKey=api_key)
     return youtube
 
-# %% [markdown]
-# ### Saving in MongoDB data lake
-
-# %%
 client = pymongo.MongoClient("mongodb://localhost:27017")
-
 document = client['youtube'] # database
 channel_collection = document['Channel'] # table-1
 
-
-# %%
 def insert_channel(channel_info,video):
     x = channel_collection.insert_one({"Channel_Name":channel_info,"Videos":video})
 
-# %% [markdown]
-# ### Migrating Data from MongoDB to Postgresql
-
-# %%
-conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
-cursor = conn.cursor()
-cursor.execute('''CREATE TABLE Channel(channel_id VARCHAR(255),channel_name VARCHAR(255),
-                channel_type VARCHAR(255),channel_views INT,channel_description TEXT,channel_status VARCHAR(255))''')
-conn.commit()
-
-print("Channel Table Created successfully")
-
-
-# %%
-def create_channel(row): 
-    channel_id = row['Channel_Id']
-    channel_name = row['Channel_Name']
-    channel_views = row['Channel_Views']
-    channel_description = row['Channel_Description']
-
-    cursor.execute("""
-     INSERT INTO Channel(channel_id,channel_name,channel_views,channel_description) VALUES(
-          %s,%s,%s,%s)""",(channel_id,channel_name,channel_views,channel_description))
-    conn.commit()
-    
-
-# %% [markdown]
-# ### Channel,Video,Caption and Comment Details
-
-# %% [markdown]
-# Fetch the Channel Details using Channel_Id
-
-# %%
 def get_channel_details():
     youtube = access_youtube_api()
     channel_request = youtube.channels().list(
@@ -103,15 +45,7 @@ def get_channel_details():
         "Playlist_Id": playlist_id
     }
     return channel_info
-    
 
-# %% [markdown]
-# - Fetch playlistitems using PlayList_Id
-# - Fetch video details using Video_Id
-# - Fetch Caption Details using Video_Id
-# - Fetch Comment Details using Video_Id
-
-# %%
 def playlist_details(youtube,channel_info):
     playlist_request = youtube.playlistItems().list(
         part="snippet,contentDetails",
@@ -123,7 +57,6 @@ def playlist_details(youtube,channel_info):
     # print(playlist_response)
     return playlist_response
 
-# %%
 def video_details(youtube,video_id):
     video_request = youtube.videos().list(
             part="snippet,contentDetails,status,statistics",
@@ -133,7 +66,6 @@ def video_details(youtube,video_id):
     # print(video_response)
     return video_response
 
-# %%
 def caption_details(youtube,video_id):
     caption_request = youtube.captions().list(
                  part="snippet",
@@ -143,7 +75,6 @@ def caption_details(youtube,video_id):
     # print(caption_response)
     return caption_response
 
-# %%
 def comment_details(youtube,video_id):
     comment_request = youtube.commentThreads().list(
                  part="snippet,replies",
@@ -153,7 +84,6 @@ def comment_details(youtube,video_id):
     # print(comment_response)
     return comment_response
 
-# %%
 def videos_info(video_id,video_response,caption_response,comment_response):
     video_info = {
                 "Video_Id": video_id,
@@ -191,7 +121,6 @@ def videos_info(video_id,video_response,caption_response,comment_response):
     
     return video_info
 
-# %%
 def get_videos_details():
     channel_info = get_channel_details()
     youtube = access_youtube_api()
@@ -213,21 +142,18 @@ def get_videos_details():
     return video
     
 
-# %% [markdown]
-# # Executing Main
-
-# %%
-channel_info = get_channel_details()
-videos = get_videos_details()
-insert_channel(channel_info=channel_info,video=videos)
+if __name__=="__main__":
+    channel_info = get_channel_details()
+    videos = get_videos_details()
+    print(videos)
+    # insert_channel(channel_info=channel_info,video=videos)
 
 
-# for row in channel_name_collection.find():
-#     print(row)
-#     create_channel(row)
+    # for row in channel_name_collection.find():
+    #     print(row)
+    #     create_channel(row)
 
 
-# cursor.execute("SELECT * FROM channel") 
-# conn.close()
-
-
+    # cursor.execute("SELECT * FROM channel") 
+    # conn.close()
+        
