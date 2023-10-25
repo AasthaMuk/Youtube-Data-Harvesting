@@ -59,7 +59,7 @@ class Utilities:
     def get_videos_details(self):
         channel_info = self.get_channel_details()
         youtube = self.access_youtube_api()
-        playlist_response = self.playlist_details(youtube,channel_info)
+        playlist_response = self.playlist_details()
         playlistitems = playlist_response['items']
 
         video=dict()
