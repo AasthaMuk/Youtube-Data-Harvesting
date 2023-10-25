@@ -114,7 +114,7 @@ class Utilities:
         return comment_response
     
 
-    def videos_info(video_id,video_response,caption_response,comment_response):
+    def videos_info(self,video_id,video_response,caption_response,comment_response):
         video_info = {
                     "Video_Id": video_id,
                     "Video_Name": video_response['items'][0]['snippet']['title'] if 'title' in video_response['items'][0]['snippet'] else "Not Available",
