@@ -6,8 +6,8 @@ class Utilities:
 
     def __init__(self):
         pass
-    
-    def access_youtube_api():
+
+    def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
         api_key = "AIzaSyCHQnJVCzO8z0sD2qcCKR0MCawdHvnACEo"
