@@ -56,6 +56,8 @@ class Utilities:
         # print(playlist_response)
         return playlist_response
     
+
+
     def get_videos_details(self):
         channel_info = self.get_channel_details()
         youtube = self.access_youtube_api()
@@ -66,11 +68,11 @@ class Utilities:
 
         for item in playlistitems:
             video_id = item['contentDetails']['videoId']
-            video_response = self.video_details(youtube,video_id)
+            video_response = self.video_details(video_id)
             
             if video_response['items']:
-                caption_response = self.caption_details(youtube,video_id)
-                comment_response = self.comment_details(youtube,video_id)
+                caption_response = self.caption_details(video_id)
+                comment_response = self.comment_details(video_id)
                 video_info = self.videos_info(video_id,video_response,caption_response,comment_response)
                 video[video_id] = video_info
                 
