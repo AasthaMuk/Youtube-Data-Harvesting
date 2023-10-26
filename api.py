@@ -1,6 +1,6 @@
 import googleapiclient.discovery
 import googleapiclient.errors
-# import pymongo
+import pymongo
 
 
 
@@ -12,20 +12,20 @@ class Utilities:
     def __init__(self):
         pass
 
-    # def createMongoDBLake(self):
-    #     client = pymongo.MongoClient("mongodb://localhost:27017")
-    #     document = client['youtube'] # database
-    #     channel_collection = document['Channel'] # table-1
-    #     return channel_collection
+    def createMongoDBLake(self):
+        client = pymongo.MongoClient("mongodb://localhost:27017")
+        document = client['youtube'] # database
+        channel_collection = document['Channel'] # table-1
+        return channel_collection
 
-    # def insert_channel(self,channel_info,video):
-    #     channel = self.createMongoDBLake()
-    #     x = channel.insert_one({"Channel_Name":channel_info,"Videos":video})
+    def insert_channel(self,channel_info,video):
+        channel = self.createMongoDBLake()
+        x = channel.insert_one({"Channel_Name":channel_info,"Videos":video})
 
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyCHQnJVCzO8z0sD2qcCKR0MCawdHvnACEo"
+        api_key = "AIzaSyBDOIeugdv60cBQlxuyU9RU8xVxGzNRoIE"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube

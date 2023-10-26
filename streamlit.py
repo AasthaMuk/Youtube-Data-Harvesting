@@ -7,7 +7,7 @@ if __name__=="__main__":
     app = Utilities()
     channel_info = app.get_channel_details()
     videos = app.get_videos_details()
-    # app.insert_channel(channel_info,videos)
+    app.insert_channel(channel_info,videos)
 
     header = st.container()
     with header:
