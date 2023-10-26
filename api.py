@@ -2,7 +2,13 @@ import googleapiclient.discovery
 import googleapiclient.errors
 import pymongo
 
-class MongoDBActivities:
+
+
+    
+
+
+class Utilities:
+
     def __init__(self):
         pass
 
@@ -15,12 +21,6 @@ class MongoDBActivities:
     def insert_channel(self,channel_info,video):
         channel = self.createMongoDBLake()
         x = channel.insert_one({"Channel_Name":channel_info,"Videos":video})
-
-
-class Utilities:
-
-    def __init__(self):
-        pass
 
     def access_youtube_api(self):
         api_service_name = "youtube"
