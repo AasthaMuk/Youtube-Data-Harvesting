@@ -1,16 +1,15 @@
 import streamlit as st
 import pandas as pd
-import pymongo
 from api import *
-
-
 
 
 if __name__=="__main__":
     app = Utilities()
     channel_info = app.get_channel_details()
     videos = app.get_videos_details()
-    # insert_channel(channel_info=channel_info,video=videos)
+
+    mongoActivity = MongoDBActivities()
+    mongoActivity.insert_channel(channel_info=channel_info,video=videos)
 
     header = st.container()
     with header:
