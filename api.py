@@ -1,7 +1,14 @@
-
 import googleapiclient.discovery
 import googleapiclient.errors
 
+class DBActivities:
+    def __init__(self):
+        pass
+
+    # def createMongoDBLake():
+#     client = pymongo.MongoClient("mongodb://localhost:27017")
+#     document = client['youtube'] # database
+#     channel_collection = document['Channel'] # table-1
 class Utilities:
 
     def __init__(self):

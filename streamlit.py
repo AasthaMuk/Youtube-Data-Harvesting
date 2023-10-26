@@ -1,12 +1,9 @@
 import streamlit as st
 import pandas as pd
-# import pymongo
+import pymongo
 from api import *
 
-# def createMongoDBLake():
-#     client = pymongo.MongoClient("mongodb://localhost:27017")
-#     document = client['youtube'] # database
-#     channel_collection = document['Channel'] # table-1
+
 
 
 if __name__=="__main__":
