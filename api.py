@@ -11,7 +11,7 @@ class Utilities:
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyDiWOyruxtVupkxX6Wdtv1C962roIjbYoc"
+        api_key = "AIzaSyCDZrZaeAMIBILJ9IMUl4r25ymRiFR7XkE"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube
@@ -22,7 +22,7 @@ class Utilities:
         youtube = self.access_youtube_api()
         channel_request = youtube.channels().list(
             part="snippet,contentDetails,statistics",
-            id = channel_id # channel_id : "UCWv7vMbMWH4-V0ZXdmDpPBA"
+            id = channel_id # channel_id : "UCWv7vMbMWH4-V0ZXdmDpPBA" , "UCeVMnSShP_Iviwkknt83cww"
         )
         channel_response = channel_request.execute()
         items = channel_response['items'][0]
@@ -88,6 +88,7 @@ class Utilities:
                 id=video_id) # video_id ( found from playlist_items response)
             
         video_response = video_request.execute()
+        print(video_response)
         return video_response
     
 
@@ -119,7 +120,7 @@ class Utilities:
                     "Tags": ["example", "video"],
                     "PublishedAt": video_response['items'][0]['snippet']['publishedAt'],
                     "View_Count": video_response['items'][0]['statistics']['viewCount'],
-                    "Like_Count": video_response['items'][0]['statistics']['likeCount'],
+                    "Like_Count": video_response['items'][0]['statistics']['likeCount'] if 'likeCount' in video_response['items'][0]['statistics'] else 0,
                     "Dislike_Count": video_response['items'][0]['statistics']['dislikeCount'] if 'dislikeCount' in video_response['items'][0]['statistics'] else "Not Available",
                     "Favorite_Count": video_response['items'][0]['statistics']['favoriteCount'],
                     "Comment_Count": video_response['items'][0]['statistics']['commentCount'],
