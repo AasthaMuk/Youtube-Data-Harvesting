@@ -1,10 +1,6 @@
 import googleapiclient.discovery
 import googleapiclient.errors
-import pymongo
 
-
-
-    
 
 
 class Utilities:
@@ -12,31 +8,21 @@ class Utilities:
     def __init__(self):
         pass
 
-    def createMongoDBLake(self):
-        client = pymongo.MongoClient("mongodb://localhost:27017")
-        document = client['youtube'] # database
-        channel_collection = document['Channel'] # table-1
-        return channel_collection
-
-    def insert_channel(self,channel_info,video):
-        channel = self.createMongoDBLake()
-        x = channel.insert_one({"Channel_Name":channel_info,"Videos":video})
-
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyBDOIeugdv60cBQlxuyU9RU8xVxGzNRoIE"
+        api_key = "AIzaSyDiWOyruxtVupkxX6Wdtv1C962roIjbYoc"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube
     
 
     
-    def get_channel_details(self):
+    def get_channel_details(self,channel_id):
         youtube = self.access_youtube_api()
         channel_request = youtube.channels().list(
             part="snippet,contentDetails,statistics",
-            id="UCeVMnSShP_Iviwkknt83cww" # channel_id
+            id = channel_id # channel_id : "UCWv7vMbMWH4-V0ZXdmDpPBA"
         )
         channel_response = channel_request.execute()
         items = channel_response['items'][0]
@@ -59,28 +45,26 @@ class Utilities:
     
 
 
-    def playlist_details(self):
+    def playlist_details(self,channel_id):
         youtube = self.access_youtube_api()
-        channel_info = self.get_channel_details()
+        channel_info = self.get_channel_details(channel_id)
         playlist_request = youtube.playlistItems().list(
             part="snippet,contentDetails",
             maxResults=25,
             playlistId=channel_info['Playlist_Id'] # playlist_id ( found from channel )
         )
         playlist_response = playlist_request.execute()
-        # print(playlist_response)
         return playlist_response
     
 
 
-    def get_videos_details(self):
-        channel_info = self.get_channel_details()
-        youtube = self.access_youtube_api()
-        playlist_response = self.playlist_details()
+    def get_videos_details(self,channel_id):
+        playlist_response = self.playlist_details(channel_id)
         playlistitems = playlist_response['items']
 
         video=dict()
 
+        count = 1
         for item in playlistitems:
             video_id = item['contentDetails']['videoId']
             video_response = self.video_details(video_id)
@@ -89,21 +73,21 @@ class Utilities:
                 caption_response = self.caption_details(video_id)
                 comment_response = self.comment_details(video_id)
                 video_info = self.videos_info(video_id,video_response,caption_response,comment_response)
-                video[video_id] = video_info
-                
+                video['Video_Id_'+str(count)] = video_info
+
+            count+=1
+
         return video
     
 
 
     def video_details(self,video_id):
         youtube = self.access_youtube_api()
-        channel_info = self.get_channel_details()
         video_request = youtube.videos().list(
                 part="snippet,contentDetails,status,statistics",
                 id=video_id) # video_id ( found from playlist_items response)
             
         video_response = video_request.execute()
-        # print(video_response)
         return video_response
     
 
@@ -114,7 +98,6 @@ class Utilities:
                     videoId=video_id # video_id ( found from playlist_items response)
                     )
         caption_response = caption_request.execute()
-        # print(caption_response)
         return caption_response
     
 
@@ -125,7 +108,6 @@ class Utilities:
                     videoId=video_id # video_id ( found from playlist_items response)
                 )
         comment_response = comment_request.execute()
-        # print(comment_response)
         return comment_response
     
 
@@ -161,7 +143,6 @@ class Utilities:
             }
             comments[comment_details['Comment_Id']] = comment_details
             
-        # print(video_info)
         video_info["Comments"] = comments
         
         return video_info
