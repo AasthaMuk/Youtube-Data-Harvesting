@@ -11,7 +11,7 @@ class Utilities:
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyCDZrZaeAMIBILJ9IMUl4r25ymRiFR7XkE"
+        api_key = "AIzaSyB7-yiYSgyM2Rq4O2f5EXCfxMKglpiQTbU"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube
@@ -88,7 +88,7 @@ class Utilities:
                 id=video_id) # video_id ( found from playlist_items response)
             
         video_response = video_request.execute()
-        print(video_response)
+        # print(video_response)
         return video_response
     
 
@@ -121,9 +121,9 @@ class Utilities:
                     "PublishedAt": video_response['items'][0]['snippet']['publishedAt'],
                     "View_Count": video_response['items'][0]['statistics']['viewCount'],
                     "Like_Count": video_response['items'][0]['statistics']['likeCount'] if 'likeCount' in video_response['items'][0]['statistics'] else 0,
-                    "Dislike_Count": video_response['items'][0]['statistics']['dislikeCount'] if 'dislikeCount' in video_response['items'][0]['statistics'] else "Not Available",
-                    "Favorite_Count": video_response['items'][0]['statistics']['favoriteCount'],
-                    "Comment_Count": video_response['items'][0]['statistics']['commentCount'],
+                    "Dislike_Count": video_response['items'][0]['statistics']['dislikeCount'] if 'dislikeCount' in video_response['items'][0]['statistics'] else 0,
+                    "Favorite_Count": video_response['items'][0]['statistics']['favoriteCount'] if 'favoriteCount' in video_response['items'][0]['statistics'] else 0,
+                    "Comment_Count": video_response['items'][0]['statistics']['commentCount'] if 'commentCount' in video_response['items'][0]['statistics'] else 0,
                     "Duration": video_response['items'][0]['contentDetails']['duration'],
                     "Thumbnail": video_response['items'][0]['snippet']['thumbnails']['default']['url']
                 }

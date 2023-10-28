@@ -28,39 +28,34 @@ def getChannelCollectionData(channel_id):
     for row in channel.find():
         channel_details = row['Channel_Name']
         video_details = row['Videos']
-        print(type(channel_details))
 
     return channel_details,video_details
-
-
 
 
 @st.cache_resource
 def createSQLTables():
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Channel(channel_id VARCHAR(255),channel_name VARCHAR(255),
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Channel(channel_id VARCHAR(255) PRIMARY KEY,channel_name VARCHAR(255),
                 channel_views INT,subscription_count INT,channel_description TEXT)''')
     
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Playlist(playlist_id VARCHAR(255),channel_name VARCHAR(255))''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Playlist(playlist_id VARCHAR(255) PRIMARY KEY,channel_name VARCHAR(255))''')
     
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Comment(comment_id VARCHAR(255),video_id VARCHAR(255),
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Comment(comment_id VARCHAR(255) PRIMARY KEY,video_id VARCHAR(255),
                 comment_text TEXT,comment_author VARCHAR(255),comment_published_date TIMESTAMP)''')
     
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Video(video_id VARCHAR(255),playlist_id VARCHAR(255),
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Video(video_id VARCHAR(255) PRIMARY KEY,playlist_id VARCHAR(255),
                 video_name VARCHAR(255),video_description TEXT,published_date TIMESTAMP,view_count INT,like_Count INT,
-                dislike_count VARCHAR(255),favourite_count INT,comment_count INT,duration VARCHAR(255),thumbnail VARCHAR(255),
+                dislike_count INT,favourite_count INT,comment_count INT,duration VARCHAR(255),thumbnail VARCHAR(255),
                 caption_status VARCHAR(255))''')
     conn.commit()
-    return conn,cursor
+    conn.close()
+    
     
 
-
-
-
-
 def insert_Data_SQL(channel_id): 
-    conn,cursor = createSQLTables()
+    conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
+    cursor = conn.cursor()
     channel , video = getChannelCollectionData(channel_id)
     channel_id = channel['Channel_Id']
     channel_name = channel['Channel_Name']
@@ -76,7 +71,7 @@ def insert_Data_SQL(channel_id):
         published_date = video[i]['PublishedAt']
         view_count = int(video[i]['View_Count'])
         like_Count = int(video[i]['Like_Count'])
-        dislike_count = video[i]['Dislike_Count']
+        dislike_count = int(video[i]['Dislike_Count'])
         favourite_count = video[i]['Favorite_Count']
         comment_count = video[i]['Comment_Count']
         duration = video[i]['Duration']
@@ -113,22 +108,29 @@ def insert_Data_SQL(channel_id):
     conn.close()
     print("Tables Created successfully")
     
+    
 
+def clear_text():
+    st.session_state.my_text = st.session_state.widget
+    st.session_state.widget = ""
 
 
 
 if __name__=="__main__":
     
+   
+   
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
-   
+    
     q = Queries()
 
     header = st.container()
 
     select_query = st.sidebar.selectbox(
         "Enter any queries you like :",
-        ("What are the names of all the videos and their corresponding channels?",
+        ("--Select--",
+         "What are the names of all the videos and their corresponding channels?",
          "Which channels have the most number of videos, and how many videos do they have?",
          "What are the top 10 most viewed videos and their respective channels?",
          "How many comments were made on each video, and what are their corresponding video names?",
@@ -137,11 +139,11 @@ if __name__=="__main__":
          "What is the total number of views for each channel, and what are their corresponding channel names?",
          "What are the names of all the channels that have published videos in the year 2022?",
          "What is the average duration of all videos in each channel, and what are their corresponding channel names?",
-         "Which videos have the highest number of comments, and what are their corresponding channel names?",
-         "Not Selected"
+         "Which videos have the highest number of comments, and what are their corresponding channel names?"
         )
     )
 
+    
     with header:
         st.title("Project : YouTube Data Harvesting and Warehousing using SQL, MongoDB and Streamlit")
         st.text("This project aims to develop a user-friendly Streamlit application that utilizes ")
@@ -149,41 +151,43 @@ if __name__=="__main__":
         st.text("migrates it to a SQL data warehouse, and enables users to search for channel details and")
         st.text("join tables to view data in the Streamlit app.")
 
-        channel_id = st.text_input("Enter Channel Id :")
-        if channel_id :
-            # if conn.closed ==1:
-                conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
-                cursor = conn.cursor()
-                cursor.execute("SELECT * from Channel where channel_id=%s",(channel_id,))
-                print(cursor.fetchall())
-                if cursor.fetchall() == []:
-                    insert_Data_SQL(channel_id)
+        if "my_text" not in st.session_state:
+              st.session_state.my_text = ""
 
-            # if conn.closed ==1:
-                conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
-                cursor = conn.cursor()    
-                if "What are the names of all the videos and their corresponding channels?" in select_query:
-                        q.query1(cursor)
-                elif "Which channels have the most number of videos, and how many videos do they have?" in select_query:
-                        q.query2(cursor)
-                elif "What are the top 10 most viewed videos and their respective channels?" in select_query:
-                        q.query3(cursor)
-                elif "How many comments were made on each video, and what are their corresponding video names?" in select_query:
-                        q.query4(cursor)
-                elif "Which videos have the highest number of likes, and what are their corresponding channel names?" in select_query:
-                        q.query5(cursor)
-                elif "What is the total number of likes and dislikes for each video, and what are their corresponding video names?" in select_query:
-                        q.query6(cursor)
-                elif "What is the total number of views for each channel, and what are their corresponding channel names?" in select_query:
+        st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
+        channel_id = st.session_state.my_text
+        # st.write(channel_id)
+        if channel_id :
+              createSQLTables()
+              try:
+                    insert_Data_SQL(channel_id)
+              except:
+                    # st.error('Please Enter Unique Data, it seems that the data is already present in the Database !!', icon="🚨")
+                    st.toast('Please Enter Unique Data, it seems that the data is already present in the Database', icon="🔥")
+                    del st.session_state['my_text']
+
+
+        if "What are the names of all the videos and their corresponding channels?" in select_query:
+            q.query1(cursor)
+        elif "Which channels have the most number of videos, and how many videos do they have?" in select_query:
+            q.query2(cursor)
+        elif "What are the top 10 most viewed videos and their respective channels?" in select_query:
+            q.query3(cursor)
+        elif "How many comments were made on each video, and what are their corresponding video names?" in select_query:
+            q.query4(cursor)
+        elif "Which videos have the highest number of likes, and what are their corresponding channel names?" in select_query:
+            q.query5(cursor)
+        elif "What is the total number of likes and dislikes for each video, and what are their corresponding video names?" in select_query:
+            q.query6(cursor)
+        elif "What is the total number of views for each channel, and what are their corresponding channel names?" in select_query:
                         q.query7(cursor)
-                elif "What are the names of all the channels that have published videos in the year 2022?" in select_query:
+        elif "What are the names of all the channels that have published videos in the year 2022?" in select_query:
                         q.query8(cursor)
-                elif "What is the average duration of all videos in each channel, and what are their corresponding channel names?" in select_query:
+        elif "What is the average duration of all videos in each channel, and what are their corresponding channel names?" in select_query:
                         q.query9(cursor)
-                elif "Which videos have the highest number of comments, and what are their corresponding channel names?" in select_query:
+        elif "Which videos have the highest number of comments, and what are their corresponding channel names?" in select_query:
                         q.query10(cursor)
-                elif "Not Selected" in select_query:
-                      conn.close()
+        
 
 
 
