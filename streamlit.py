@@ -4,6 +4,7 @@ import psycopg2
 from api import *
 from queries import *
 
+
 @st.cache_resource
 def insert_channel(_channel,channel_info,video):
     x = _channel.insert_one({"Channel_Name":channel_info,"Videos":video})
@@ -46,12 +47,17 @@ def createSQLTables():
     
     cursor.execute('''CREATE TABLE IF NOT EXISTS Video(video_id VARCHAR(255) PRIMARY KEY,playlist_id VARCHAR(255),
                 video_name VARCHAR(255),video_description TEXT,published_date TIMESTAMP,view_count INT,like_Count INT,
-                dislike_count INT,favourite_count INT,comment_count INT,duration VARCHAR(255),thumbnail VARCHAR(255),
+                dislike_count INT,favourite_count INT,comment_count INT,duration INT,thumbnail VARCHAR(255),
                 caption_status VARCHAR(255))''')
     conn.commit()
     conn.close()
     
     
+def convertIntoSeconds(time):
+      h,m,s = time.split(":")
+      sec = int(h)*3600 + int(m)*60 + int(s)
+      return sec
+
 
 def insert_Data_SQL(channel_id): 
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
@@ -74,7 +80,7 @@ def insert_Data_SQL(channel_id):
         dislike_count = int(video[i]['Dislike_Count'])
         favourite_count = video[i]['Favorite_Count']
         comment_count = video[i]['Comment_Count']
-        duration = video[i]['Duration']
+        duration = convertIntoSeconds(video[i]['Duration'])
         thumbnail = video[i]['Thumbnail']
         caption_status = video[i]['Caption_Status']
 
@@ -110,16 +116,14 @@ def insert_Data_SQL(channel_id):
     
     
 
-def clear_text():
-    st.session_state.my_text = st.session_state.widget
-    st.session_state.widget = ""
+# def clear_text():
+#     st.session_state.my_text = st.session_state.widget
+#     st.session_state.widget = ""
 
 
 
 if __name__=="__main__":
     
-   
-   
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
     
@@ -143,28 +147,35 @@ if __name__=="__main__":
         )
     )
 
-    
     with header:
         st.title("Project : YouTube Data Harvesting and Warehousing using SQL, MongoDB and Streamlit")
         st.text("This project aims to develop a user-friendly Streamlit application that utilizes ")
-        st.text("the Google API to extract information on a YouTube channel, stores it in a MongoDB database,")
-        st.text("migrates it to a SQL data warehouse, and enables users to search for channel details and")
-        st.text("join tables to view data in the Streamlit app.")
+        st.text("the Google API to extract information on a YouTube channel, stores it in a ")
+        st.text("MongoDB database, migrates it to a SQL data warehouse, and enables users to search ")
+        st.text("for channel details and join tables to view data in the Streamlit app.")
 
-        if "my_text" not in st.session_state:
-              st.session_state.my_text = ""
+        # if "my_text" not in st.session_state:
+        #       st.session_state.my_text = ""
 
-        st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
-        channel_id = st.session_state.my_text
+        # st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
+        channel_id = st.text_input("Enter Channel Id :")
+        # channel_id = st.session_state.my_text
         # st.write(channel_id)
-        if channel_id :
-              createSQLTables()
-              try:
-                    insert_Data_SQL(channel_id)
-              except:
-                    # st.error('Please Enter Unique Data, it seems that the data is already present in the Database !!', icon="🚨")
-                    st.toast('Please Enter Unique Data, it seems that the data is already present in the Database', icon="🔥")
-                    del st.session_state['my_text']
+        print(channel_id)
+
+        result = st.button("Save to Mongo Data Lake", type="primary")
+        if result:
+            st.write(":smile: Data Getting Saved to MongoDB :smile:")
+
+        # if channel_id :
+        #       createSQLTables()
+        #       insert_Data_SQL(channel_id)
+            #   try:
+            #         insert_Data_SQL(channel_id)
+            #   except:
+            #         # st.error('Please Enter Unique Data, it seems that the data is already present in the Database !!', icon="🚨")
+            #         st.toast('Please Enter Unique Data, it seems that the data is already present in the Database', icon="🔥")
+            #         del st.session_state['my_text']
 
 
         if "What are the names of all the videos and their corresponding channels?" in select_query:
@@ -180,13 +191,13 @@ if __name__=="__main__":
         elif "What is the total number of likes and dislikes for each video, and what are their corresponding video names?" in select_query:
             q.query6(cursor)
         elif "What is the total number of views for each channel, and what are their corresponding channel names?" in select_query:
-                        q.query7(cursor)
+            q.query7(cursor)
         elif "What are the names of all the channels that have published videos in the year 2022?" in select_query:
-                        q.query8(cursor)
+            q.query8(cursor)
         elif "What is the average duration of all videos in each channel, and what are their corresponding channel names?" in select_query:
-                        q.query9(cursor)
+            q.query9(cursor)
         elif "Which videos have the highest number of comments, and what are their corresponding channel names?" in select_query:
-                        q.query10(cursor)
+            q.query10(cursor)
         
 
 

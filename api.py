@@ -111,8 +111,86 @@ class Utilities:
         comment_response = comment_request.execute()
         return comment_response
     
+    def setDuration(self,time):
+        s=""
+        if "H" in time:
+            time1 = time.split("H")[1]
+            print(time1)
+            h=time.split("H")[0]
+            print(h)
+            if int(h)<=9:
+                s+="0"+h+":"
+            else:
+                s+=h+":"
+        
+            if "M" in time1:
+                time2 = time1.split("M")[1]
+                print(time2)
+                m = time1.split("M")[0]
+                print(m)
+                if int(m)<=9:
+                    s+="0"+m+":"
+                else:
+                    s+=m+":"
+
+                if "S" in time1.split("M")[1]:
+                    sec = time1.split("M")[1].split("S")[0]
+                    print(sec)
+                    if int(sec)<=9:
+                        s+="0"+sec
+                    else:
+                        s+=sec
+                else:
+                    s+="00"
+            else:
+                s+="00"+":"
+                if "S" in time1:
+                    time3 = time1.split("S")[0]
+                    if int(time3)<=9:
+                        s+="0"+time3
+                    else:
+                        s+=time3
+                else:
+                    s+="00"
+        else:
+            if "M" in time:
+                time1 = time.split("M")[1]
+                print(time1)
+                m = time.split("M")[0]
+                print(m)
+                s+="00"+":"
+                if int(m)<=9:
+                    s+="0"+m+":"
+                else:
+                    s+=m+":"
+                
+                if "S" in time.split("M")[1]:
+                    sec = time.split("M")[1].split("S")[0]
+                    print(sec)
+                    if int(sec)<=9:
+                        s+="0"+sec
+                    else:
+                        s+=sec
+                else:
+                    s+="00"
+            else:
+                if "S" in time:
+                    time1 = time.split("S")[0]
+                    s+="00:00"+":"
+                    if int(time1)<=9:
+                        s+="0"+time1
+                    else:
+                        s+=time1
+
+        return s
 
     def videos_info(self,video_id,video_response,caption_response,comment_response):
+        duration = video_response['items'][0]['contentDetails']['duration']
+        time = duration.split("PT")[1]
+        print(time)
+        d = self.setDuration(time)
+        print(d)
+        
         video_info = {
                     "Video_Id": video_id,
                     "Video_Name": video_response['items'][0]['snippet']['title'] if 'title' in video_response['items'][0]['snippet'] else "Not Available",
@@ -124,7 +202,8 @@ class Utilities:
                     "Dislike_Count": video_response['items'][0]['statistics']['dislikeCount'] if 'dislikeCount' in video_response['items'][0]['statistics'] else 0,
                     "Favorite_Count": video_response['items'][0]['statistics']['favoriteCount'] if 'favoriteCount' in video_response['items'][0]['statistics'] else 0,
                     "Comment_Count": video_response['items'][0]['statistics']['commentCount'] if 'commentCount' in video_response['items'][0]['statistics'] else 0,
-                    "Duration": video_response['items'][0]['contentDetails']['duration'],
+                    # "Duration": video_response['items'][0]['contentDetails']['duration'],
+                    "Duration": d,
                     "Thumbnail": video_response['items'][0]['snippet']['thumbnails']['default']['url']
                 }
                 
