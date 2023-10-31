@@ -11,7 +11,7 @@ class Utilities:
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyB7-yiYSgyM2Rq4O2f5EXCfxMKglpiQTbU"
+        api_key = "AIzaSyDWCY7WexzEBgKP1-qsp86a1HLoj9LX4YQ"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube

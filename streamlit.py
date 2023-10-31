@@ -5,35 +5,45 @@ from api import *
 from queries import *
 
 
-@st.cache_resource
-def insert_channel(_channel,channel_info,video):
-    x = _channel.insert_one({"Channel_Name":channel_info,"Videos":video})
+def insert_channel(channel_id):
+    channel = createMongoDBLake()
+    app = Utilities()
+    
+    cursor = channel.find({"Channel_Name.Channel_Id": channel_id})
+    
+    if len(list(cursor)) == 0:
+        channel_info = app.get_channel_details(channel_id)
+        video = app.get_videos_details(channel_id) 
+        channel.insert_one({"Channel_Name":channel_info,"Videos":video})
+        st.write(":smile: Data Getting Saved to MongoDB :smile:")
+    else:
+        st.toast('Please Enter Unique Record, the data is already present in Data Lake !!', icon="🚨")
 
 
-@st.cache_resource
-def createMongoDBLake(channel_id):
+
+def createMongoDBLake():
     client = pymongo.MongoClient("mongodb://localhost:27017")
     document = client['youtube'] # database
     channel_collection = document['Channel'] # table-1
-    app = Utilities()
-    channel_info = app.get_channel_details(channel_id)
-    videos = app.get_videos_details(channel_id)    
-    insert_channel(channel_collection,channel_info,videos)
     return channel_collection
+    
+    
 
 @st.cache_resource
-def getChannelCollectionData(channel_id):
-    channel = createMongoDBLake(channel_id)
+def getChannelCollectionData():
+    client = pymongo.MongoClient("mongodb://localhost:27017")
+    document = client['youtube'] # database
+    channel_collection = document['Channel'] # table-1
     channel_details = dict()
     video_details =  dict()
-    for row in channel.find():
+    for row in channel_collection.find():
         channel_details = row['Channel_Name']
         video_details = row['Videos']
 
     return channel_details,video_details
 
 
-@st.cache_resource
+# @st.cache_resource
 def createSQLTables():
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
@@ -59,10 +69,10 @@ def convertIntoSeconds(time):
       return sec
 
 
-def insert_Data_SQL(channel_id): 
+def insert_Data_SQL(): 
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
-    channel , video = getChannelCollectionData(channel_id)
+    channel , video = getChannelCollectionData()
     channel_id = channel['Channel_Id']
     channel_name = channel['Channel_Name']
     subscription_count = int(channel['Subscription_Count'])
@@ -161,11 +171,22 @@ if __name__=="__main__":
         channel_id = st.text_input("Enter Channel Id :")
         # channel_id = st.session_state.my_text
         # st.write(channel_id)
-        print(channel_id)
+        # print(channel_id)
 
-        result = st.button("Save to Mongo Data Lake", type="primary")
-        if result:
-            st.write(":smile: Data Getting Saved to MongoDB :smile:")
+        client = pymongo.MongoClient("mongodb://localhost:27017")
+        document = client['youtube'] # database
+        channel = document['Channel']
+        
+        
+
+        if channel.count_documents({}) <= 10:
+            result = st.button("Save to Mongo Data Lake", type="primary")
+            if result:
+                if channel_id:
+                    insert_channel(channel_id)
+        else:        
+            st.write("Data is full !! 10 Records in place")
+           
 
         # if channel_id :
         #       createSQLTables()
