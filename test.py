@@ -205,10 +205,13 @@
 #=============================================================================================================
     
 import streamlit as st
-
+import numpy as np
 
 channel_id = st.text_input("Enter Channel Id :")
 result = st.button("Save to Mongo Data Lake", type="primary")
 if result:
     st.write(":smile: Data Getting Saved to MongoDB :smile:")
 
+with st.spinner("Loading..."):
+    while True:
+        print(2)
