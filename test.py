@@ -204,14 +204,69 @@
 
 #=============================================================================================================
     
+# import streamlit as st
+# import numpy as np
+
+# channel_id = st.text_input("Enter Channel Id :")
+# result = st.button("Save to Mongo Data Lake", type="primary")
+# if result:
+#     st.write(":smile: Data Getting Saved to MongoDB :smile:")
+
+# with st.spinner("Loading..."):
+#     while True:
+#         print(2)
+
+#==============================================================================================================
+
+import matplotlib.pyplot as plt
 import streamlit as st
-import numpy as np
 
-channel_id = st.text_input("Enter Channel Id :")
-result = st.button("Save to Mongo Data Lake", type="primary")
-if result:
-    st.write(":smile: Data Getting Saved to MongoDB :smile:")
+# data = [1, 2, 3, 4, 5]
+# fig, ax = plt.subplots()
+# ax.scatter(data, data)
+# st.pyplot(fig)
 
-with st.spinner("Loading..."):
-    while True:
-        print(2)
+# Sample data - replace this with your actual data
+# video_names = ["Video A", "Video B", "Video C", "Video D"]
+# x_values = ["Video A", "Video B", "Video C", "Video D"]  # Replace with your X-axis data (numerical data)
+# y_values = ["Video A", "Video B", "Video C", "Video D"]  # Replace with your Y-axis data (numerical data)
+
+# # Create a scatter plot
+# plt.scatter(x_values, y_values)
+
+# # Label the points with video names
+# for i, name in enumerate(video_names):
+#     plt.annotate(name, (x_values[i], y_values[i]))
+
+# # Add labels and title
+# plt.xlabel("X-axis Label")
+# plt.ylabel("Y-axis Label")
+# plt.title("Scatter Plot for Video Names")
+
+# # Show the plot
+# plt.show()
+
+
+
+# Sample data - replace this with your actual data
+video_names = ["Video A", "Video B", "Video C", "Video D"]
+x_values = ["Video A", "Video B", "Video C", "Video D"]  # Replace with your X-axis data (numerical data)
+y_values = ["Channel A", "Channel B", "Channel C", "Channel D"]  # Replace with your Y-axis data (numerical data)
+
+# Create a scatter plot using Matplotlib
+fig, ax = plt.subplots()
+ax.scatter(x_values, y_values)
+
+# Label the points with video names
+for i, name in enumerate(video_names):
+    ax.annotate(name, (x_values[i], y_values[i]))
+
+# Add labels and title
+ax.set_xlabel("X-axis Label")
+ax.set_ylabel("Y-axis Label")
+ax.set_title("Scatter Plot for Video Names")
+
+# Display the plot in Streamlit
+st.pyplot(fig)
+
+

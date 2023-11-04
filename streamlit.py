@@ -69,6 +69,8 @@ def convertIntoSeconds(time):
       return sec
 
 
+
+
 def insert_Data_SQL(ch_name): 
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
@@ -101,17 +103,18 @@ def insert_Data_SQL(ch_name):
           dislike_count,favourite_count,comment_count,duration,thumbnail,caption_status))
         
         comments = video[i]['Comments']
+        
         for comment in comments:
-            comment_id = comments[comment]['Comment_Id']
-            comment_text = comments[comment]['Comment_Text']
-            comment_author = comments[comment]['Comment_Author']
-            comment_published_date = comments[comment]['Comment_PublishedAt']
+                comment_id = comments[comment]['Comment_Id']
+                comment_text = comments[comment]['Comment_Text']
+                comment_author = comments[comment]['Comment_Author']
+                comment_published_date = comments[comment]['Comment_PublishedAt']
 
-            cursor.execute("""
-              INSERT INTO Comment(comment_id,video_id,comment_text,comment_author,comment_published_date) 
-              VALUES(%s,%s,%s,%s,%s)""",(comment_id,video_id,comment_text,comment_author,
-              comment_published_date))
-            
+                cursor.execute("""
+                INSERT INTO Comment(comment_id,video_id,comment_text,comment_author,comment_published_date) 
+                VALUES(%s,%s,%s,%s,%s)""",(comment_id,video_id,comment_text,comment_author,
+                comment_published_date))
+                
 
     cursor.execute("""
      INSERT INTO Channel(channel_id,channel_name,channel_views,subscription_count,channel_description) VALUES(
@@ -126,9 +129,9 @@ def insert_Data_SQL(ch_name):
     
     
 
-# def clear_text():
-#     st.session_state.my_text = st.session_state.widget
-#     st.session_state.widget = ""
+def clear_text():
+    st.session_state.my_text = st.session_state.widget
+    st.session_state.widget = ""
 
 
 def select_SQL_query():
@@ -182,7 +185,6 @@ if __name__=="__main__":
     cursor = conn.cursor()
     
     
-    
     header = st.container()
     with header:
         st.title("Project : YouTube Data Harvesting and Warehousing using SQL, MongoDB and Streamlit")
@@ -191,12 +193,12 @@ if __name__=="__main__":
         st.text("MongoDB database, migrates it to a SQL data warehouse, and enables users to search ")
         st.text("for channel details and join tables to view data in the Streamlit app.")
 
-        # if "my_text" not in st.session_state:
-        #       st.session_state.my_text = ""
+        if "my_text" not in st.session_state:
+              st.session_state.my_text = ""
 
-        # st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
-        channel_id = st.text_input("Enter Channel Id :")
-        # channel_id = st.session_state.my_text
+        st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
+        # channel_id = st.text_input("Enter Channel Id :")
+        channel_id = st.session_state.my_text
         # st.write(channel_id)
         # print(channel_id)
 
@@ -205,14 +207,19 @@ if __name__=="__main__":
         channel_name =""
         channel_names=["--Select--"]
 
-        if channel.count_documents({}) <= 10:
+        print(channel.count_documents({}))
+        if channel.count_documents({}) < 10:
             result = st.button("Save to Mongo Data Lake", type="primary")
             if result:
                 if channel_id:
                    insert_channel(channel_id)
+                   del st.session_state['my_text']
         else:        
             st.write("Data is full !! 10 Records in place")
-           
+
+        
+        
+
         for row in channel.find():
             channel_names.append(row['Channel_Name']['Channel_Name'])
         
@@ -225,6 +232,7 @@ if __name__=="__main__":
         flag = st.button("Migrate to SQL", type="primary")
         if flag:
             try:
+                createSQLTables()
                 insert_Data_SQL(selected_channel)
                 st.success("Data saved to SQL!!")
             except UniqueViolation as e:

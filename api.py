@@ -11,7 +11,7 @@ class Utilities:
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyDWCY7WexzEBgKP1-qsp86a1HLoj9LX4YQ"
+        api_key = "AIzaSyBH8H0msct16ovPx7oeTzdPejpFUtPFD94"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube
@@ -48,36 +48,79 @@ class Utilities:
     def playlist_details(self,channel_id):
         youtube = self.access_youtube_api()
         channel_info = self.get_channel_details(channel_id)
-        playlist_request = youtube.playlistItems().list(
-            part="snippet,contentDetails",
-            maxResults=25,
-            playlistId=channel_info['Playlist_Id'] # playlist_id ( found from channel )
-        )
-        playlist_response = playlist_request.execute()
-        return playlist_response
+        next_page_token = None
+        list_of_video_ids = []
+        no_of_pages = 1
+        while True:
+            playlist_request = youtube.playlistItems().list(
+                part="snippet",
+                playlistId=channel_info['Playlist_Id'], # playlist_id ( found from channel )
+                maxResults=5,
+                pageToken=next_page_token
+            )
+
+            playlist_response = playlist_request.execute()
+
+            for playlistitem in playlist_response['items']:
+                list_of_video_ids.append(playlistitem['snippet']['resourceId']['videoId'])
+
+            next_page_token = playlist_response.get('nextPageToken')
+            no_of_pages +=1
+            # if not next_page_token:
+            #     break
+            if no_of_pages == 3:
+                break
+
+        return list_of_video_ids
+        # youtube = self.access_youtube_api()
+        # channel_info = self.get_channel_details(channel_id)
+        # playlist_request = youtube.playlistItems().list(
+        #     part="snippet,contentDetails",
+        #     maxResults=25,
+        #     playlistId=channel_info['Playlist_Id'] # playlist_id ( found from channel )
+        # )
+        # playlist_response = playlist_request.execute()
+        # return playlist_response
     
 
 
     def get_videos_details(self,channel_id):
-        playlist_response = self.playlist_details(channel_id)
-        playlistitems = playlist_response['items']
-
+        video_ids_list = self.playlist_details(channel_id)
         video=dict()
 
         count = 1
-        for item in playlistitems:
-            video_id = item['contentDetails']['videoId']
-            video_response = self.video_details(video_id)
-            
-            if video_response['items']:
-                caption_response = self.caption_details(video_id)
-                comment_response = self.comment_details(video_id)
-                video_info = self.videos_info(video_id,video_response,caption_response,comment_response)
-                video['Video_Id_'+str(count)] = video_info
+        for item in video_ids_list:
+                video_id = item
+                video_response = self.video_details(video_id)
+                
+                if video_response['items']:
+                    caption_response = self.caption_details(video_id)
+                    comment_response = self.comment_details(video_id)
+                    video_info = self.videos_info(video_id,video_response,caption_response,comment_response)
+                    video['Video_Id_'+str(count)] = video_info
 
-            count+=1
+                count+=1
 
         return video
+        # playlist_response = self.playlist_details(channel_id)
+        # playlistitems = playlist_response['items']
+
+        # video=dict()
+
+        # count = 1
+        # for item in playlistitems:
+        #     video_id = item['contentDetails']['videoId']
+        #     video_response = self.video_details(video_id)
+            
+        #     if video_response['items']:
+        #         caption_response = self.caption_details(video_id)
+        #         comment_response = self.comment_details(video_id)
+        #         video_info = self.videos_info(video_id,video_response,caption_response,comment_response)
+        #         video['Video_Id_'+str(count)] = video_info
+
+        #     count+=1
+
+        # return video
     
 
 
@@ -102,15 +145,58 @@ class Utilities:
         return caption_response
     
 
+
+
     def comment_details(self,video_id):
         youtube = self.access_youtube_api()
-        comment_request = youtube.commentThreads().list(
-                    part="snippet,replies",
-                    videoId=video_id # video_id ( found from playlist_items response)
-                )
-        comment_response = comment_request.execute()
-        return comment_response
+
+        list_of_comments = []
+        next_page_token = None
+        no_of_pages = 1
+        while True :
+            comment_request = youtube.commentThreads().list(
+                        # part="snippet,replies",
+                        part="snippet",
+                        videoId=video_id, # video_id ( found from playlist_items response)
+                        # videoId="_uQrJ0TkZlc", 
+                        maxResults=2,
+                        pageToken=next_page_token
+                    )
+            comment_response = comment_request.execute()
+
+            
+            for c in comment_response.get('items',[]):
+                snippet = c.get('snippet', {})
+                topLevelComment = snippet.get('topLevelComment', {})
+                is_comments_disabled = topLevelComment.get('snippet', {}).get('isPublic', True) is False
+                if is_comments_disabled:
+                    print(f"Comments are disabled for a comment thread on video with ID {video_id}. Skipping processing.")
+                else:
+                    # Process the comment thread as comments are enabled
+                    print(f"Comments are enabled for a comment thread on video with ID {video_id}. Proceed with processing.")
+                    list_of_comments.append(c)
+                
+            
+            next_page_token = comment_response.get('nextPageToken')
+            no_of_pages+=1
+            # if not next_page_token:
+            #     break
+
+            if no_of_pages==2:
+                break
+
+        return list_of_comments
+        # youtube = self.access_youtube_api()
+        # comment_request = youtube.commentThreads().list(
+        #             part="snippet,replies",
+        #             videoId=video_id # video_id ( found from playlist_items response)
+        #         )
+        # comment_response = comment_request.execute()
+        # return comment_response
     
+
+
+
     def setDuration(self,time):
         s=""
         if "H" in time:
@@ -214,14 +300,17 @@ class Utilities:
             video_info["Caption_Status"] = "Not Available"
         
         comments = dict()
-        for comment in comment_response['items']:
+        count=1
+        # for comment in comment_response['items']:
+        for comment in comment_response:
             comment_details = {
-                "Comment_Id":comment['snippet']['topLevelComment']['id'],
-                "Comment_Text": comment['snippet']['topLevelComment']['snippet']['textDisplay'],
-                "Comment_Author": comment['snippet']['topLevelComment']['snippet']['authorDisplayName'],
-                "Comment_PublishedAt": comment['snippet']['topLevelComment']['snippet']['publishedAt']
-            }
-            comments[comment_details['Comment_Id']] = comment_details
+                    "Comment_Id":comment['snippet']['topLevelComment']['id'],
+                    "Comment_Text": comment['snippet']['topLevelComment']['snippet']['textDisplay'],
+                    "Comment_Author": comment['snippet']['topLevelComment']['snippet']['authorDisplayName'],
+                    "Comment_PublishedAt": comment['snippet']['topLevelComment']['snippet']['publishedAt']
+                }
+            comments['Comment_Id_'+str(count)] = comment_details
+            count+=1
             
         video_info["Comments"] = comments
         
