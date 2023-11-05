@@ -37,9 +37,9 @@ class Queries:
         SELECT  c.channel_name,c.count_of_videos as max_no_of_videos from CTE c 
         where c.count_of_videos=(SELECT MAX(c1.count_of_videos) FROM CTE c1)""")
 
-        data = pd.DataFrame(cursor.fetchall(),columns=['video_name','channel_name'])
+        data = pd.DataFrame(cursor.fetchall(),columns=['channel_name','max_no_of_videos'])
         st.table(data)
-        st.bar_chart(data,x='video_name',y='channel_name')
+        st.bar_chart(data,x='channel_name',y='max_no_of_videos')
 
 
     def query3(self,cursor):
@@ -88,6 +88,7 @@ class Queries:
         data = pd.DataFrame(cursor.fetchall(),columns=['video_name','published_date','channel_name'])
         st.table(data.iloc[9:34,:])
         st.line_chart(data.iloc[9:34,:],x='published_date',y='video_name')
+
 
     def query9(self,cursor):
         cursor.execute("""SELECT c.channel_name,ROUND(AVG(v.duration),1) as average_duration from Video v INNER JOIN Playlist p ON

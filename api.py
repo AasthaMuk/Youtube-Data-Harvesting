@@ -11,7 +11,7 @@ class Utilities:
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
-        api_key = "AIzaSyBH8H0msct16ovPx7oeTzdPejpFUtPFD94"
+        api_key = "AIzaSyB_McypTu4LLZ5ofxzFyFbYL6mvvDIQfU8"
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version,developerKey=api_key)
         return youtube
@@ -22,7 +22,7 @@ class Utilities:
         youtube = self.access_youtube_api()
         channel_request = youtube.channels().list(
             part="snippet,contentDetails,statistics",
-            id = channel_id # channel_id : "UCWv7vMbMWH4-V0ZXdmDpPBA" , "UCeVMnSShP_Iviwkknt83cww"
+            id = channel_id # channel_id
         )
         channel_response = channel_request.execute()
         items = channel_response['items'][0]
@@ -66,21 +66,12 @@ class Utilities:
 
             next_page_token = playlist_response.get('nextPageToken')
             no_of_pages +=1
-            # if not next_page_token:
-            #     break
+    
             if no_of_pages == 3:
                 break
 
         return list_of_video_ids
-        # youtube = self.access_youtube_api()
-        # channel_info = self.get_channel_details(channel_id)
-        # playlist_request = youtube.playlistItems().list(
-        #     part="snippet,contentDetails",
-        #     maxResults=25,
-        #     playlistId=channel_info['Playlist_Id'] # playlist_id ( found from channel )
-        # )
-        # playlist_response = playlist_request.execute()
-        # return playlist_response
+        
     
 
 
@@ -102,25 +93,7 @@ class Utilities:
                 count+=1
 
         return video
-        # playlist_response = self.playlist_details(channel_id)
-        # playlistitems = playlist_response['items']
-
-        # video=dict()
-
-        # count = 1
-        # for item in playlistitems:
-        #     video_id = item['contentDetails']['videoId']
-        #     video_response = self.video_details(video_id)
-            
-        #     if video_response['items']:
-        #         caption_response = self.caption_details(video_id)
-        #         comment_response = self.comment_details(video_id)
-        #         video_info = self.videos_info(video_id,video_response,caption_response,comment_response)
-        #         video['Video_Id_'+str(count)] = video_info
-
-        #     count+=1
-
-        # return video
+        
     
 
 
@@ -131,7 +104,6 @@ class Utilities:
                 id=video_id) # video_id ( found from playlist_items response)
             
         video_response = video_request.execute()
-        # print(video_response)
         return video_response
     
 
@@ -155,10 +127,8 @@ class Utilities:
         no_of_pages = 1
         while True :
             comment_request = youtube.commentThreads().list(
-                        # part="snippet,replies",
                         part="snippet",
                         videoId=video_id, # video_id ( found from playlist_items response)
-                        # videoId="_uQrJ0TkZlc", 
                         maxResults=2,
                         pageToken=next_page_token
                     )
@@ -179,20 +149,12 @@ class Utilities:
             
             next_page_token = comment_response.get('nextPageToken')
             no_of_pages+=1
-            # if not next_page_token:
-            #     break
 
             if no_of_pages==2:
                 break
 
         return list_of_comments
-        # youtube = self.access_youtube_api()
-        # comment_request = youtube.commentThreads().list(
-        #             part="snippet,replies",
-        #             videoId=video_id # video_id ( found from playlist_items response)
-        #         )
-        # comment_response = comment_request.execute()
-        # return comment_response
+        
     
 
 
@@ -273,22 +235,19 @@ class Utilities:
     def videos_info(self,video_id,video_response,caption_response,comment_response):
         duration = video_response['items'][0]['contentDetails']['duration']
         time = duration.split("PT")[1]
-        print(time)
         d = self.setDuration(time)
-        print(d)
         
         video_info = {
                     "Video_Id": video_id,
                     "Video_Name": video_response['items'][0]['snippet']['title'] if 'title' in video_response['items'][0]['snippet'] else "Not Available",
                     "Video_Description": video_response['items'][0]['snippet']['description'],
-                    "Tags": ["example", "video"],
+                    "Tags": video_response['items'][0]['snippet']['tags'],
                     "PublishedAt": video_response['items'][0]['snippet']['publishedAt'],
                     "View_Count": video_response['items'][0]['statistics']['viewCount'],
                     "Like_Count": video_response['items'][0]['statistics']['likeCount'] if 'likeCount' in video_response['items'][0]['statistics'] else 0,
                     "Dislike_Count": video_response['items'][0]['statistics']['dislikeCount'] if 'dislikeCount' in video_response['items'][0]['statistics'] else 0,
                     "Favorite_Count": video_response['items'][0]['statistics']['favoriteCount'] if 'favoriteCount' in video_response['items'][0]['statistics'] else 0,
                     "Comment_Count": video_response['items'][0]['statistics']['commentCount'] if 'commentCount' in video_response['items'][0]['statistics'] else 0,
-                    # "Duration": video_response['items'][0]['contentDetails']['duration'],
                     "Duration": d,
                     "Thumbnail": video_response['items'][0]['snippet']['thumbnails']['default']['url']
                 }
@@ -301,7 +260,6 @@ class Utilities:
         
         comments = dict()
         count=1
-        # for comment in comment_response['items']:
         for comment in comment_response:
             comment_details = {
                     "Comment_Id":comment['snippet']['topLevelComment']['id'],

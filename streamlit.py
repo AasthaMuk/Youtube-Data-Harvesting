@@ -145,7 +145,7 @@ def select_SQL_query():
          "Which videos have the highest number of likes, and what are their corresponding channel names?",
          "What is the total number of likes and dislikes for each video, and what are their corresponding video names?",
          "What is the total number of views for each channel, and what are their corresponding channel names?",
-         "What are the names of all the channels that have published videos in the year 2022?",
+         "What are the names of all the channels that have published videos in the year 2023?",
          "What is the average duration of all videos in each channel, and what are their corresponding channel names?",
          "Which videos have the highest number of comments, and what are their corresponding channel names?"
         )
@@ -197,10 +197,8 @@ if __name__=="__main__":
               st.session_state.my_text = ""
 
         st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
-        # channel_id = st.text_input("Enter Channel Id :")
         channel_id = st.session_state.my_text
-        # st.write(channel_id)
-        # print(channel_id)
+        
 
         channel = createMongoDBLake()
         
@@ -240,16 +238,6 @@ if __name__=="__main__":
             
         select_query = select_SQL_query()
         execute_Query(select_query)
-
-        # if channel_id :
-        #       createSQLTables()
-        #       insert_Data_SQL(channel_id)
-            #   try:
-            #         insert_Data_SQL(channel_id)
-            #   except:
-            #         # st.error('Please Enter Unique Data, it seems that the data is already present in the Database !!', icon="🚨")
-            #         st.toast('Please Enter Unique Data, it seems that the data is already present in the Database', icon="🔥")
-            #         del st.session_state['my_text']
 
 
         
