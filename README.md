@@ -37,15 +37,15 @@ and use it in the code.
 
 **Step 2 :** I have extracted following information using youtube api :
 
-    a)**channel_details -** using the channel_id that is given as input in the text-box. From the response, I have extracted these details : **Channel_Id,Channel_Name ,Subscription_Count,Channel_Views,Channel_Description,Playlist_Id**
+    a)channel_details - using the channel_id that is given as input in the text-box. From the response, I have extracted these details : **Channel_Id,Channel_Name ,Subscription_Count,Channel_Views,Channel_Description,Playlist_Id**
 
-    b)**playlist_details -** using the playlist_id that comes in channel_details response. From playlist , I have extracted **list of all video_ids** by looping over the pages using next_page_token.
+    b)playlist_details - using the playlist_id that comes in channel_details response. From playlist , I have extracted **list of all video_ids** by looping over the pages using next_page_token.
 
-    c)**videos_details -** for each video_id as part of playlist_items response got from above, I have extracted following details : **Video_Id,Video_Name ,Video_Description ,Tags ,PublishedAt ,View_Count ,Like_Count ,Dislike_Count ,Favorite_Count ,Comment_Count,Duration ,Thumbnail, Caption**
+    c)videos_details - for each video_id as part of playlist_items response got from above, I have extracted following details : **Video_Id,Video_Name ,Video_Description ,Tags ,PublishedAt ,View_Count ,Like_Count ,Dislike_Count ,Favorite_Count ,Comment_Count,Duration ,Thumbnail, Caption**
 
-    **for captions :** extracted caption using the video_id
+    for captions : extracted caption using the video_id
 
-   d) **comment_details -** using the video_id , we get comment details like **Comment_Id, Comment_Text, Comment_Author, Comment_PublishedAt**
+   d) comment_details - using the video_id , we get comment details like **Comment_Id, Comment_Text, Comment_Author, Comment_PublishedAt**
 
 After getting all these details, finally a dictionary is created and then inserted as a document into the Mongo DB.
 
