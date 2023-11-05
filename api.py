@@ -2,12 +2,13 @@ import googleapiclient.discovery
 import googleapiclient.errors
 
 
-
+# Class created to have all the utility methods in one place
 class Utilities:
 
     def __init__(self):
         pass
-
+    
+    # ------------------------  Different Methods created ---------------------------------#
     def access_youtube_api(self):
         api_service_name = "youtube"
         api_version = "v3"
@@ -273,3 +274,5 @@ class Utilities:
         video_info["Comments"] = comments
         
         return video_info
+    
+    #--------------------------------------------------------------------------------------#

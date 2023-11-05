@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# Class created to have all the queries in one place
 class Queries:
 
     def __init__(self):

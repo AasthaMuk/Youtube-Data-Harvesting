@@ -1,3 +1,5 @@
+#---------------------  Importing Libraries ------------------------------------------#
+
 import streamlit as st
 import pymongo
 import psycopg2
@@ -5,7 +7,9 @@ from api import *
 from queries import *
 from psycopg2.errors import *
 
+#--------------------------------------------------------------------------------------#
 
+# ------------------------  Different Methods created ---------------------------------#
 def insert_channel(channel_id):
     channel = createMongoDBLake()
     app = Utilities()
@@ -177,14 +181,18 @@ def execute_Query(select_query):
             q.query10(cursor)     
 
 
+#--------------------------------------------------------------------------------------#
 
+
+#--------------------- Executing Main method to run the app ---------------------------#
 
 if __name__=="__main__":
     
+    # Connect to SQL Database to run a query based on selection
     conn = psycopg2.connect(database="youtube_db",host="localhost",user="postgres",password="root",port="5432")
     cursor = conn.cursor()
     
-    
+    # Create a conatiner using streamlit lib that will contain different widgets
     header = st.container()
     with header:
         st.title("Project : YouTube Data Harvesting and Warehousing using SQL, MongoDB and Streamlit")
@@ -193,40 +201,42 @@ if __name__=="__main__":
         st.text("MongoDB database, migrates it to a SQL data warehouse, and enables users to search ")
         st.text("for channel details and join tables to view data in the Streamlit app.")
 
+        # used to remove the channel_id once it is entered in the text box
         if "my_text" not in st.session_state:
               st.session_state.my_text = ""
 
+        # take channel_id as input
         st.text_input("Enter Channel Id :",key='widget', on_change=clear_text)
         channel_id = st.session_state.my_text
         
-
+        # connection to Mongo Lake
         channel = createMongoDBLake()
         
-        channel_name =""
-        channel_names=["--Select--"]
-
-        print(channel.count_documents({}))
+        # check if no. of documents is less than 10 , if so insert into the Mongo Lake
         if channel.count_documents({}) < 10:
+            # on clicking the button document gets inserted into MongoDB
             result = st.button("Save to Mongo Data Lake", type="primary")
             if result:
                 if channel_id:
                    insert_channel(channel_id)
                    del st.session_state['my_text']
         else:        
-            st.write("Data is full !! 10 Records in place")
+            st.write("Data is full !! 10 Records in place") # show error message that data is full
 
-        
-        
+
+        # set the available channel names in the dropdown
+        channel_name =""
+        channel_names=["--Select--"]
 
         for row in channel.find():
             channel_names.append(row['Channel_Name']['Channel_Name'])
         
-
         selected_channel = st.selectbox(
             "Select a channel",
             options = channel_names,
         )
 
+        # on clicking the button, data gets migrated from MongoDB to SQL-DB based on the channel name selected
         flag = st.button("Migrate to SQL", type="primary")
         if flag:
             try:
@@ -235,12 +245,12 @@ if __name__=="__main__":
                 st.success("Data saved to SQL!!")
             except UniqueViolation as e:
                  st.toast("🔥 Data already present in DB, Please check !!!")
-            
+
+        # on selecting any query from the sidebar, the query gets executed and data retrieved from SQL  
         select_query = select_SQL_query()
         execute_Query(select_query)
 
-
-        
+#--------------------------------------------------------------------------------------#   
         
 
 
