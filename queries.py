@@ -49,7 +49,7 @@ class Queries:
                           on c.channel_name = p.channel_name order by v.view_count desc limit 10""")
         data = pd.DataFrame(cursor.fetchall(),columns=['video_name','view_count','channel_name'])
         st.table(data)
-        st.bar_chart(data,x='video_name',y='channel_name')
+        st.bar_chart(data,x='video_name',y='view_count')
 
 
     def query4(self,cursor):

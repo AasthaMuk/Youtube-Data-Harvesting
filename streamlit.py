@@ -173,7 +173,7 @@ def execute_Query(select_query):
             q.query6(cursor)
     elif "What is the total number of views for each channel, and what are their corresponding channel names?" in select_query:
             q.query7(cursor)
-    elif "What are the names of all the channels that have published videos in the year 2022?" in select_query:
+    elif "What are the names of all the channels that have published videos in the year 2023?" in select_query:
             q.query8(cursor)
     elif "What is the average duration of all videos in each channel, and what are their corresponding channel names?" in select_query:
             q.query9(cursor)
