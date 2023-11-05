@@ -44,8 +44,7 @@ and use it in the code.
     c)videos_details - for each video_id as part of playlist_items response got from above, I have extracted following details : **Video_Id,Video_Name ,Video_Description ,Tags ,PublishedAt ,View_Count ,Like_Count ,Dislike_Count ,Favorite_Count ,Comment_Count,Duration ,Thumbnail, Caption**
 
     for captions : extracted caption using the video_id
-
-   d) comment_details - using the video_id , we get comment details like **Comment_Id, Comment_Text, Comment_Author, Comment_PublishedAt**
+   d)comment_details - using the video_id , we get comment details like **Comment_Id, Comment_Text, Comment_Author, Comment_PublishedAt**
 
 After getting all these details, finally a dictionary is created and then inserted as a document into the Mongo DB.
 
