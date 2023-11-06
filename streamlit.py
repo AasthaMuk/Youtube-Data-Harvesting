@@ -213,15 +213,15 @@ if __name__=="__main__":
         channel = createMongoDBLake()
         
         # check if no. of documents is less than 10 , if so insert into the Mongo Lake
-        if channel.count_documents({}) < 10:
-            # on clicking the button document gets inserted into MongoDB
-            result = st.button("Save to Mongo Data Lake", type="primary")
-            if result:
-                if channel_id:
-                   insert_channel(channel_id)
-                   del st.session_state['my_text']
-        else:        
-            st.write("Data is full !! 10 Records in place") # show error message that data is full
+        
+        # on clicking the button document gets inserted into MongoDB
+        result = st.button("Save to Mongo Data Lake", type="primary")
+        if result:
+            if channel_id and channel.count_documents({}) < 10:
+                insert_channel(channel_id)
+                del st.session_state['my_text']
+            else:        
+                st.write("Data is full !! 10 Records in place") # show error message that data is full
 
 
         # set the available channel names in the dropdown
