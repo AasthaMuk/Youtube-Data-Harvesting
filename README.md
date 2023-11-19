@@ -1,5 +1,6 @@
 # Youtube-Data-Harvesting
 
+Video Link : [Click here](https://www.linkedin.com/feed/update/urn:li:activity:7126599185377763329/)
 ## **About of the Project :**
 
 This project aims to develop a user-friendly Streamlit application that utilizes the Google API to extract information on a YouTube channel.
